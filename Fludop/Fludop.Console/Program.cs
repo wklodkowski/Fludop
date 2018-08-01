@@ -14,29 +14,18 @@ namespace Fludop.Console
 
         private static string TestFludop()
         {
-            var fludop = new Core.Fludop();
 
-            var result = fludop
+            var result = Core.Fludop
                 .Select("Column1", "Column2", "Column3")
                 .From("Table1")
                 .Build();
 
-            var selectAll = fludop
-                .Select()
-                .From("Table1")
+            var insert = Core.Fludop.Update("Table1")
+                .Set("Column1", "Test")
+                .Where("Column1", "Wojtek")
                 .Build();
 
-            var insert = fludop
-                .Insert("Table1", "Value1", "Value2", "Value3")
-                .Build();
-
-            var update = fludop
-                .Update("Books")
-                .Set("Title", "New Title")
-                .Where("Number", "100")
-                .Build();
-
-            return result;
+            return insert;
         }
     }
 }
