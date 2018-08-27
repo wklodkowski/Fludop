@@ -1,5 +1,6 @@
 ﻿using System;
 using Fludop.Core;
+using Fludop.Console.Models;
 
 namespace Fludop.Console
 {
@@ -14,18 +15,13 @@ namespace Fludop.Console
 
         private static string TestFludop()
         {
-
-            var result = Core.Fludop
-                .Select("Column1", "Column2", "Column3")
-                .From("Table1")
+            var selectResult = Core.Fludop
+                .Select<Book>()
+                .From()
+                .Where(v => v.Title, "Dobra ksiazka")
                 .Build();
 
-            var insert = Core.Fludop.Update("Table1")
-                .Set("Column1", "Test")
-                .Where("Column1", "Wojtek")
-                .Build();
-
-            return insert;
+            return selectResult;
         }
     }
 }

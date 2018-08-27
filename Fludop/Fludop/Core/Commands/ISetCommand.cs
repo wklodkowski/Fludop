@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Fludop.Core.Commands
 {
-    public interface ISetCommand
+    public interface ISetCommand<TEntity>
     {
-        ISetCommand Set(string column, string value);
-        IWhereCommand Where(string column, string value);
+        ISetCommand<TEntity> Set<TProp>(Expression<Func<TEntity, TProp>> property, string value);
+        IWhereCommand<TEntity> Where<TProp>(Expression<Func<TEntity, TProp>> property, string value);
     }
 }

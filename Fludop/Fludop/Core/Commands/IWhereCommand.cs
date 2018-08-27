@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Fludop.Core.Commands
 {
-    public interface IWhereCommand
+    public interface IWhereCommand<TEntity>
     {
         string Build();
     }

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Fludop.Core.Commands
 {
-    public interface ISelectCommand
+    public interface ISelectCommand<TEntity>
     {
-        IFromCommand From(string table);
+        IFromCommand<TEntity> From();
     }
 }
