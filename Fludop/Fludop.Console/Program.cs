@@ -21,6 +21,11 @@ namespace Fludop.Console
                 .Where(v => v.Title, "Dobra ksiazka")
                 .Build();
 
+            var updateResult = Core.Fludop.Update<Book>().Set(x => x.Title, "Nowy Tytul")
+                .Set(x => x.Author, "Wojtek")
+                .Where(w => w.Id, "1")
+                .Build();
+
             return selectResult;
         }
     }
