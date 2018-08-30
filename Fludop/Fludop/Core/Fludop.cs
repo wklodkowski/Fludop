@@ -66,20 +66,20 @@ namespace Fludop.Core
 
             public IFromCommand<TEntity> From()
             {
-                _stringBuilder.Append($"FROM {typeof(TEntity).Name}");
+                _stringBuilder.Append($"FROM {typeof(TEntity).Name} ");
                 return this;
             }
 
             public ISetCommand<TEntity> Set<TProp>(Expression<Func<TEntity, TProp>> property, string value)
             {
-                string setQuery = $"SET {property.Body}='{value}' ";
+                string setQuery = $"SET {property.Name}='{value}' ";
                 _stringBuilder.Append(setQuery);
                 return this;
             }
 
             public IWhereCommand<TEntity> Where<TProp>(Expression<Func<TEntity, TProp>> property, string value)
             {
-                string whereQuery = $"WHERE {property.Body}='{value}'";
+                string whereQuery = $"WHERE {property.Name}='{value}' ";
                 _stringBuilder.Append(whereQuery);
                 return this;
             }
