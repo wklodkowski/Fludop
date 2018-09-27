@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using Fludop.Core;
 using Fludop.Console.Models;
 
@@ -16,7 +17,7 @@ namespace Fludop.Console
         private static string TestFludop()
         {
             var selectResult = Core.Fludop
-                .Select<Book>()
+                .Select<Book>(x => x.Id, book => book.Title)
                 .From()
                 .Where(v => v.Title, "Dobra ksiazka")
                 .Build();

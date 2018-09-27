@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fludop.Core.Commands
+﻿namespace Fludop.Core.Commands.Interfaces
 {
     public interface IInsertCommand<TEntity>
     {

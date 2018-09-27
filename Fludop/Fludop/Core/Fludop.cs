@@ -3,30 +3,38 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 using Fludop.Core.Commands;
+using Fludop.Core.Commands.Enums;
+using Fludop.Core.Commands.Interfaces;
+using Fludop.Core.ModelConfigurations.Conventions;
+using Fludop.Core.Models;
 
 namespace Fludop.Core
 {
     public static class Fludop
     {
-        public static ISelectCommand<TEntity> Select<TEntity>(params string[] columns)
+        public static ISelectCommand<TEntity> Select<TEntity>(params Expression<Func<TEntity, string>>[] columns)
         {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append("SELECT ");
+            var tableConvenction = new TableConvention<TEntity>();
+            var tableModel = new TableModel()
+            {
+                TableName = tableConvenction.GetTableName(),
+                CommandEnum = CommandEnum.Select,
+                Columns = new List<string>()
+            };
 
             if (columns.Length > 0)
             {
                 foreach (var column in columns)
                 {
-                    stringBuilder.Append($"{column}, ");
+                    tableModel.Columns.Add(column.Name);
                 }
-                stringBuilder.Remove(stringBuilder.Length - 2, 1);
             }
             else
             {
-                stringBuilder.Append("* ");
+                tableModel.Columns.Add("*");
             }
 
-            return new FludopBuilder<TEntity>(stringBuilder.ToString());
+            return new FludopBuilder<TEntity>(tableModel);
         }
 
         public static IInsertCommand<TEntity> Insert<TEntity>(string table)
@@ -57,9 +65,11 @@ namespace Fludop.Core
             ISetCommand<TEntity>
         {
             private readonly StringBuilder _stringBuilder;
+            private readonly TableModel _tableModel;
 
-            public FludopBuilder(string query)
+            public FludopBuilder(TableModel tableModel)
             {
+                _tableModel = tableModel;
                 _stringBuilder = new StringBuilder();
                 _stringBuilder.Append(query);
             }
