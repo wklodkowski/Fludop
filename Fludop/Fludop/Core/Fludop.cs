@@ -1,58 +1,90 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Fludop.Core.Commands;
+using Fludop.Core.Commands.Consts;
 using Fludop.Core.Commands.Enums;
 using Fludop.Core.Commands.Interfaces;
-using Fludop.Core.ModelConfigurations.Conventions;
-using Fludop.Core.Models;
+using Fludop.Core.Tables.Conventions;
+using Fludop.Core.Tables.Extensions;
+using Fludop.Core.Tables.Models;
 
 namespace Fludop.Core
 {
     public static class Fludop
     {
-        public static ISelectCommand<TEntity> Select<TEntity>(params Expression<Func<TEntity, string>>[] columns)
+        public static ISelectCommand<TEntity> Select<TEntity>()
         {
-            var tableConvenction = new TableConvention<TEntity>();
-            var tableModel = new TableModel()
-            {
-                TableName = tableConvenction.GetTableName(),
-                CommandEnum = CommandEnum.Select,
-                Columns = new List<string>()
-            };
+            return Select<TEntity>(x => new{});
+        }
+        public static ISelectCommand<TEntity> Select<TEntity>(Func<TEntity, object> columnObject)
+        {
+            var columnsModel = new List<string>();
+
+            var columns = columnObject.GetType().GetProperties();
 
             if (columns.Length > 0)
             {
-                foreach (var column in columns)
-                {
-                    tableModel.Columns.Add(column.Name);
-                }
+                columnsModel.AddRange(columns.Select(column => column.Name));
             }
             else
             {
-                tableModel.Columns.Add("*");
+                columnsModel.Add("*");
             }
+
+            var tableModel = GetTable<TEntity>(CommandEnum.Select, columnsModel);
 
             return new FludopBuilder<TEntity>(tableModel);
         }
 
-        public static IInsertCommand<TEntity> Insert<TEntity>(string table)
+        public static IInsertCommand<TEntity> Insert<TEntity>()
         {
-            string insertQuery = $"INSERT INTO {table} ";
-            return new FludopBuilder<TEntity>(insertQuery);
+            return Insert<TEntity>(x => new {});
+        }
+
+        public static IInsertCommand<TEntity> Insert<TEntity>(Func<TEntity, object> columnObject)
+        {
+            var columnsModel = new List<string>();
+
+            var columns = columnObject.GetType().GetProperties();
+
+            if (columns.Length > 0)
+            {
+                columnsModel.Add("(");
+                columnsModel.AddRange(columns.Select(column => column.Name));
+                columnsModel.Add(")");
+            }
+
+            var tableModel = GetTable<TEntity>(CommandEnum.Insert, columnsModel);
+            return new FludopBuilder<TEntity>(tableModel);
         }
 
         public static IUpdateCommand<TEntity> Update<TEntity>()
             where TEntity : class
         {
-            string updateQuery = $"UPDATE {typeof(TEntity).Name} ";
-            return new FludopBuilder<TEntity>(updateQuery);
+            var tableModel = GetTable<TEntity>(CommandEnum.Update, null);
+            return new FludopBuilder<TEntity>(tableModel);
         }
 
         public static IDeleteCommand<TEntity> Delete<TEntity>()
         {
-            return new FludopBuilder<TEntity>(string.Empty);
+            var tableModel = GetTable<TEntity>(CommandEnum.Update, null);
+            return new FludopBuilder<TEntity>(tableModel);
+        }
+
+        private static TableModel GetTable<TEntity>(CommandEnum commandEnum, List<string> columns)
+        {
+            var tableConvenction = new TableConvention<TEntity>();
+            var tableModel = new TableModel()
+            {
+                TableName = tableConvenction.GetTableName(),
+                CommandEnum = commandEnum,
+                Columns = columns
+            };
+
+            return tableModel;
         }
 
         private class FludopBuilder<TEntity> : ISelectCommand<TEntity>,
@@ -71,32 +103,34 @@ namespace Fludop.Core
             {
                 _tableModel = tableModel;
                 _stringBuilder = new StringBuilder();
-                _stringBuilder.Append(query);
             }
 
             public IFromCommand<TEntity> From()
             {
-                _stringBuilder.Append($"FROM {typeof(TEntity).Name} ");
+                Initialize();
+                _stringBuilder.Append($"{SqlGrammarConst.From} {_tableModel.TableName} ");
                 return this;
             }
 
             public ISetCommand<TEntity> Set<TProp>(Expression<Func<TEntity, TProp>> property, string value)
             {
-                string setQuery = $"SET {property.Name}='{value}' ";
+                Initialize();
+                string setQuery = $"{SqlGrammarConst.Set} {property.Name}='{value}' ";
                 _stringBuilder.Append(setQuery);
                 return this;
             }
 
             public IWhereCommand<TEntity> Where<TProp>(Expression<Func<TEntity, TProp>> property, string value)
             {
-                string whereQuery = $"WHERE {property.Name}='{value}' ";
+                string whereQuery = $"{SqlGrammarConst.Where} {property.Name}='{value}' ";
                 _stringBuilder.Append(whereQuery);
                 return this;
             }
 
             public IValuesCommand Values(params string[] values)
             {
-                string valueQuery = $"VALUES (";
+                Initialize();
+                string valueQuery = $"{SqlGrammarConst.Values} (";
                 _stringBuilder.Append(valueQuery);
                 foreach (var value in values)
                 {
@@ -115,6 +149,16 @@ namespace Fludop.Core
                 var query = _stringBuilder.ToString();
                 _stringBuilder.Clear();
                 return query;
+            }
+
+            private void Initialize()
+            {
+                if (_stringBuilder.Length > 0)
+                    return;
+
+                _stringBuilder.Append(_tableModel.GetMainCommand());
+                _stringBuilder.Append(" ");
+                _stringBuilder.Append($"{_tableModel.GetColumns()} ");
             }
         }
     }

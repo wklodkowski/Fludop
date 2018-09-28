@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Fludop.Core.ModelConfigurations.Attributes
+namespace Fludop.Core.Tables.Attributes
 {
     /// <summary>
     /// Specifies the database table that a class is mapped to.
@@ -13,9 +11,8 @@ namespace Fludop.Core.ModelConfigurations.Attributes
         public TableNameAttribute(string tableName)
         {
             if (string.IsNullOrWhiteSpace(tableName))
-            {
                 throw new ArgumentException();
-            }
+
             TableName = tableName;
         }
 

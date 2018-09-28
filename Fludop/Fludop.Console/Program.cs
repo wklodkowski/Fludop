@@ -17,7 +17,13 @@ namespace Fludop.Console
         private static string TestFludop()
         {
             var selectResult = Core.Fludop
-                .Select<Book>(x => x.Id, book => book.Title)
+                .Select<Book>(x => new {x.Author, x.Title})
+                .From()
+                .Where(v => v.Title, "Dobra ksiazka")
+                .Build();
+
+            var selectResult1 = Core.Fludop
+                .Select<Book>()
                 .From()
                 .Where(v => v.Title, "Dobra ksiazka")
                 .Build();

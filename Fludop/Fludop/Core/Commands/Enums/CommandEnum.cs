@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
+using Fludop.Core.Commands.Consts;
 
 namespace Fludop.Core.Commands.Enums
 {
     internal enum CommandEnum
     {
-        [Description("SELECT")]
+        [Description(SqlGrammarConst.Select)]
         Select,
-        [Description("INSERT INTO")]
+        [Description(SqlGrammarConst.Insert)]
         Insert,
-        [Description("UPDATE")]
+        [Description(SqlGrammarConst.Update)]
         Update,
-        [Description("DELETE")]
+        [Description(SqlGrammarConst.Delete)]
         Delete
     }
 }

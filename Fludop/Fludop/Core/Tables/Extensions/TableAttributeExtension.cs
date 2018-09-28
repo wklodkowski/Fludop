@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 
-namespace Fludop.Core.ModelConfigurations.Extensions
+namespace Fludop.Core.Tables.Extensions
 {
-    internal static class AttributeExtensions
+    internal static class TableAttributeExtension
     {
         public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Func<TAttribute, TValue> valueSelector)
             where TAttribute : Attribute

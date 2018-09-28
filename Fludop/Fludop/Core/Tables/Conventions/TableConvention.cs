@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Fludop.Core.ModelConfigurations.Attributes;
-using Fludop.Core.ModelConfigurations.Extensions;
+﻿using Fludop.Core.Tables.Attributes;
+using Fludop.Core.Tables.Extensions;
 
-namespace Fludop.Core.ModelConfigurations.Conventions
+namespace Fludop.Core.Tables.Conventions
 {
     internal class TableConvention<TEntity>
     {
