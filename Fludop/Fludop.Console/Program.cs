@@ -22,10 +22,28 @@ namespace Fludop.Console
                 .Where(v => v.Title, "Dobra ksiazka")
                 .Build();
 
-            var selectResult1 = Core.Fludop
+            var select = Core.Fludop
                 .Select<Book>()
                 .From()
                 .Where(v => v.Title, "Dobra ksiazka")
+                .Build();
+
+            var insert = Core.Fludop.Insert<Book>()// TODO: Czy kolumny w "INSERT" powinny byc w metodzie insert czy values
+                .Values("Nowy tytul", "Autor Wojtek")
+                .Build();
+
+            var insert1 = Core.Fludop.Insert<Book>(x => new { x.Author, x.Title })
+                .Values("Nowy tytul", "Autor Wojtek")
+                .Build();
+
+            var update = Core.Fludop.Update<Book>()
+                .Set(x => x.Author, "Mariusz") //TODO: Pytanie czy zrobić tak by sety wszystkich kolumn były w jednym SET
+                .Where(x => x.Title, "Nowy tytul") //TODO: To samo co wyzej
+                .Build();
+
+            var delete = Core.Fludop.Delete<Book>()
+                .From()
+                .Where(x => x.Author, "Wojtek")
                 .Build();
 
             var updateResult = Core.Fludop.Update<Book>().Set(x => x.Title, "Nowy Tytul")

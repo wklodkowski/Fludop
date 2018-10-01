@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using Fludop.Core.Commands;
 using Fludop.Core.Commands.Consts;
@@ -16,72 +17,92 @@ namespace Fludop.Core
     public static class Fludop
     {
         public static ISelectCommand<TEntity> Select<TEntity>()
+            where TEntity : class
         {
-            return Select<TEntity>(x => new{});
+            return Select<TEntity>(x => new { });
         }
         public static ISelectCommand<TEntity> Select<TEntity>(Func<TEntity, object> columnObject)
+            where TEntity : class
         {
-            var columnsModel = new List<string>();
-
+            var queryModel = new List<string>();
             var columns = columnObject.GetType().GetProperties();
+            queryModel.Add(SqlPunctuationConst.Space);
 
             if (columns.Length > 0)
             {
-                columnsModel.AddRange(columns.Select(column => column.Name));
+                foreach (var column in columns)
+                {
+                    queryModel.Add(column.Name);
+                    queryModel.Add(SqlPunctuationConst.Comma);
+                    queryModel.Add(SqlPunctuationConst.Space);
+                }
+                queryModel.RemoveAt(queryModel.Count - 2);
             }
             else
             {
-                columnsModel.Add("*");
+                queryModel.Add(SqlPunctuationConst.Asterisk);
             }
 
-            var tableModel = GetTable<TEntity>(CommandEnum.Select, columnsModel);
+            var tableModel = GetTable<TEntity>(CommandEnum.Select, queryModel);
 
             return new FludopBuilder<TEntity>(tableModel);
         }
 
         public static IInsertCommand<TEntity> Insert<TEntity>()
+            where TEntity : class
         {
             return Insert<TEntity>(x => new {});
         }
 
         public static IInsertCommand<TEntity> Insert<TEntity>(Func<TEntity, object> columnObject)
+            where TEntity : class
         {
-            var columnsModel = new List<string>();
+            var queryModel = new List<string>();
 
             var columns = columnObject.GetType().GetProperties();
+            var tableModel = GetTable<TEntity>(CommandEnum.Insert, queryModel);
+
+            queryModel.Add(SqlPunctuationConst.Space);
+            queryModel.Add(tableModel.TableName);
 
             if (columns.Length > 0)
             {
-                columnsModel.Add("(");
-                columnsModel.AddRange(columns.Select(column => column.Name));
-                columnsModel.Add(")");
+                queryModel.Add(SqlPunctuationConst.Space);
+                queryModel.Add(SqlPunctuationConst.OpenBracket);
+                queryModel.AddRange(columns.Select(column => column.Name));
+                queryModel.Add(SqlPunctuationConst.CloseBracket);
             }
-
-            var tableModel = GetTable<TEntity>(CommandEnum.Insert, columnsModel);
+            
             return new FludopBuilder<TEntity>(tableModel);
         }
 
         public static IUpdateCommand<TEntity> Update<TEntity>()
             where TEntity : class
         {
+            var queryModel = new List<string>();
             var tableModel = GetTable<TEntity>(CommandEnum.Update, null);
+            queryModel.Add(SqlPunctuationConst.Space);
+            queryModel.Add(tableModel.TableName);
+            tableModel.QueryCommand = queryModel;
+
             return new FludopBuilder<TEntity>(tableModel);
         }
 
         public static IDeleteCommand<TEntity> Delete<TEntity>()
+            where TEntity : class
         {
-            var tableModel = GetTable<TEntity>(CommandEnum.Update, null);
+            var tableModel = GetTable<TEntity>(CommandEnum.Delete, null);
             return new FludopBuilder<TEntity>(tableModel);
         }
 
-        private static TableModel GetTable<TEntity>(CommandEnum commandEnum, List<string> columns)
+        private static TableModel GetTable<TEntity>(CommandEnum commandEnum, List<string> queryCommands)
         {
             var tableConvenction = new TableConvention<TEntity>();
             var tableModel = new TableModel()
             {
                 TableName = tableConvenction.GetTableName(),
                 CommandEnum = commandEnum,
-                Columns = columns
+                QueryCommand = queryCommands
             };
 
             return tableModel;
@@ -108,21 +129,21 @@ namespace Fludop.Core
             public IFromCommand<TEntity> From()
             {
                 Initialize();
-                _stringBuilder.Append($"{SqlGrammarConst.From} {_tableModel.TableName} ");
+                _stringBuilder.Append($"{SqlPunctuationConst.Space}{SqlGrammarConst.From}{SqlPunctuationConst.Space}{_tableModel.TableName}");
                 return this;
             }
 
             public ISetCommand<TEntity> Set<TProp>(Expression<Func<TEntity, TProp>> property, string value)
             {
                 Initialize();
-                string setQuery = $"{SqlGrammarConst.Set} {property.Name}='{value}' ";
+                string setQuery = $"{SqlPunctuationConst.Space}{SqlGrammarConst.Set}{SqlPunctuationConst.Space}{property.GetName()}='{value}'{SqlPunctuationConst.Space}";
                 _stringBuilder.Append(setQuery);
                 return this;
             }
 
             public IWhereCommand<TEntity> Where<TProp>(Expression<Func<TEntity, TProp>> property, string value)
             {
-                string whereQuery = $"{SqlGrammarConst.Where} {property.Name}='{value}' ";
+                string whereQuery = $"{SqlPunctuationConst.Space}{SqlGrammarConst.Where}{SqlPunctuationConst.Space}{property.GetName()}='{value}'";
                 _stringBuilder.Append(whereQuery);
                 return this;
             }
@@ -130,22 +151,22 @@ namespace Fludop.Core
             public IValuesCommand Values(params string[] values)
             {
                 Initialize();
-                string valueQuery = $"{SqlGrammarConst.Values} (";
+                string valueQuery = $"{SqlPunctuationConst.Space}{SqlGrammarConst.Values}{SqlPunctuationConst.Space}{SqlPunctuationConst.OpenBracket}";
                 _stringBuilder.Append(valueQuery);
                 foreach (var value in values)
                 {
-                    _stringBuilder.Append($"{value}, ");
+                    _stringBuilder.Append($"{value}{SqlPunctuationConst.Comma}{SqlPunctuationConst.Space}");
                 }
 
                 _stringBuilder.Remove(_stringBuilder.Length - 2, 2);
-                _stringBuilder.Append(")");
+                _stringBuilder.Append(SqlPunctuationConst.CloseBracket);
 
                 return this;
             }
 
             public string Build()
             {
-                _stringBuilder.Append(";");
+                _stringBuilder.Append(SqlPunctuationConst.Semicolon);
                 var query = _stringBuilder.ToString();
                 _stringBuilder.Clear();
                 return query;
@@ -157,8 +178,7 @@ namespace Fludop.Core
                     return;
 
                 _stringBuilder.Append(_tableModel.GetMainCommand());
-                _stringBuilder.Append(" ");
-                _stringBuilder.Append($"{_tableModel.GetColumns()} ");
+                _stringBuilder.Append(_tableModel.GetQueryCommands());
             }
         }
     }

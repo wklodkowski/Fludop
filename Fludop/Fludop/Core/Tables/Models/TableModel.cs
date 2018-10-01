@@ -7,7 +7,7 @@ namespace Fludop.Core.Tables.Models
     {
         public string TableName { get; set; }
         public CommandEnum CommandEnum { get; set; }
-        public List<string> Columns { get; set; }
-        public bool HasColumns => Columns != null || Columns?.Count > 0;
+        public List<string> QueryCommand { get; set; }
+        public bool HasColumns => QueryCommand != null || QueryCommand?.Count > 0;
     }
 }
