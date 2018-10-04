@@ -1,4 +1,4 @@
-﻿namespace Fludop.Core.Commands.Interfaces
+﻿namespace Fludop.Core.Query.Commands.Interfaces
 {
     public interface IDeleteCommand<TEntity>
     {

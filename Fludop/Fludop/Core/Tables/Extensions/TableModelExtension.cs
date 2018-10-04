@@ -24,27 +24,27 @@ namespace Fludop.Core.Tables.Extensions
             return stringBuilder.ToString();
         }
 
-        public static string GetMainCommand(this TableModel tableModel)
-        {
-            string description = null;
-            var type = tableModel.CommandEnum.GetType();
-            var values = Enum.GetValues(type);
+        //public static string GetMainCommand(this TableModel tableModel)
+        //{
+        //    string description = null;
+        //    var type = tableModel.CommandEnum.GetType();
+        //    var values = Enum.GetValues(type);
 
-            foreach (int val in values)
-            {
-                if (val != ((IConvertible) tableModel.CommandEnum).ToInt32(CultureInfo.InvariantCulture))
-                    continue;
+        //    foreach (int val in values)
+        //    {
+        //        if (val != ((IConvertible) tableModel.CommandEnum).ToInt32(CultureInfo.InvariantCulture))
+        //            continue;
 
-                var memInfo = type.GetMember(type.GetEnumName(val));
-                var descriptionAttributes = memInfo.First().GetCustomAttributes(typeof(DescriptionAttribute), false);
-                if (descriptionAttributes.Length > 0)
-                {
-                    description = ((DescriptionAttribute)descriptionAttributes.First()).Description;
-                }
+        //        var memInfo = type.GetMember(type.GetEnumName(val));
+        //        var descriptionAttributes = memInfo.First().GetCustomAttributes(typeof(DescriptionAttribute), false);
+        //        if (descriptionAttributes.Length > 0)
+        //        {
+        //            description = ((DescriptionAttribute)descriptionAttributes.First()).Description;
+        //        }
 
-                break;
-            }
-            return description;
-        }
+        //        break;
+        //    }
+        //    return description;
+        //}
     }
 }

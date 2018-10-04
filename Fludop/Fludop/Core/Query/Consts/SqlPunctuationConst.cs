@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fludop.Core.Commands.Consts
+﻿namespace Fludop.Core.Query.Consts
 {
     internal static class SqlPunctuationConst
     {

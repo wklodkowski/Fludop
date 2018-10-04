@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
-using Fludop.Core.Commands;
-using Fludop.Core.Commands.Consts;
-using Fludop.Core.Commands.Enums;
-using Fludop.Core.Commands.Interfaces;
+using Fludop.Core.Query.Commands;
+using Fludop.Core.Query.Commands.Enums;
+using Fludop.Core.Query.Commands.Interfaces;
+using Fludop.Core.Query.Consts;
 using Fludop.Core.Tables.Conventions;
 using Fludop.Core.Tables.Extensions;
 using Fludop.Core.Tables.Models;
@@ -21,32 +20,50 @@ namespace Fludop.Core
         {
             return Select<TEntity>(x => new { });
         }
-        public static ISelectCommand<TEntity> Select<TEntity>(Func<TEntity, object> columnObject)
+
+        public static ISelectCommand<TEntity> Select<TEntity>(Expression<Func<TEntity, object>> columnObject)
             where TEntity : class
         {
-            var queryModel = new List<string>();
-            var columns = columnObject.GetType().GetProperties();
-            queryModel.Add(SqlPunctuationConst.Space);
+            var query = new SelectQueryCommand<TEntity>();
+            query.MainCommand = CommandEnum.Select;
 
-            if (columns.Length > 0)
-            {
-                foreach (var column in columns)
-                {
-                    queryModel.Add(column.Name);
-                    queryModel.Add(SqlPunctuationConst.Comma);
-                    queryModel.Add(SqlPunctuationConst.Space);
-                }
-                queryModel.RemoveAt(queryModel.Count - 2);
-            }
-            else
-            {
-                queryModel.Add(SqlPunctuationConst.Asterisk);
-            }
 
-            var tableModel = GetTable<TEntity>(CommandEnum.Select, queryModel);
 
-            return new FludopBuilder<TEntity>(tableModel);
+
+            return query;
         }
+
+        //public static ISelectCommand<TEntity> Select<TEntity>(Expression<Func<TEntity, object>> columnObject)
+        //    where TEntity : class
+        //{
+        //    var query = new SelectQueryCommand<TEntity>();
+        //    query.Type = CommandEnum.Select;
+        //    //query.SelectColumns = 
+
+        //    var queryModel = new List<string>();
+        //    var columns = columnObject.GetType().GetProperties();
+        //    queryModel.Add(SqlPunctuationConst.Space);
+
+        //    if (columns.Length > 0)
+        //    {
+        //        foreach (var column in columns)
+        //        {
+        //            queryModel.Add(column.Name);
+        //            queryModel.Add(SqlPunctuationConst.Comma);
+        //            queryModel.Add(SqlPunctuationConst.Space);
+        //        }
+        //        queryModel.RemoveAt(queryModel.Count - 2);
+        //    }
+        //    else
+        //    {
+        //        queryModel.Add(SqlPunctuationConst.Asterisk);
+        //    }
+
+        //    var tableModel = GetTable<TEntity>(CommandEnum.Select, queryModel);
+
+        //    //return new FludopBuilder<TEntity>(tableModel);
+        //    return query;
+        //}
 
         public static IInsertCommand<TEntity> Insert<TEntity>()
             where TEntity : class
@@ -166,6 +183,11 @@ namespace Fludop.Core
 
             public string Build()
             {
+                if (_tableModel.CommandEnum == CommandEnum.Select)
+                {
+
+                }
+
                 _stringBuilder.Append(SqlPunctuationConst.Semicolon);
                 var query = _stringBuilder.ToString();
                 _stringBuilder.Clear();
@@ -177,7 +199,7 @@ namespace Fludop.Core
                 if (_stringBuilder.Length > 0)
                     return;
 
-                _stringBuilder.Append(_tableModel.GetMainCommand());
+                //_stringBuilder.Append(_tableModel.GetMainCommand());
                 _stringBuilder.Append(_tableModel.GetQueryCommands());
             }
         }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Fludop.Core.Commands.Enums;
+using Fludop.Core.Query.Commands.Enums;
 
 namespace Fludop.Core.Tables.Models
 {

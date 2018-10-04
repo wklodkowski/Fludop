@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-using Fludop.Core.Commands.Consts;
+﻿using System.ComponentModel;
+using Fludop.Core.Query.Consts;
 
-namespace Fludop.Core.Commands.Enums
+namespace Fludop.Core.Query.Commands.Enums
 {
     internal enum CommandEnum
     {

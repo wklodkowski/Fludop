@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Fludop.Core.Commands.Interfaces
+namespace Fludop.Core.Query.Commands.Interfaces
 {
     public interface ISetCommand<TEntity>
     {
