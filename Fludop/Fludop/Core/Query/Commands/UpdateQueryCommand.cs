@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Fludop.Core.Query.Commands.Interfaces;
+using Fludop.Core.Query.Consts;
 
 namespace Fludop.Core.Query.Commands
 {
@@ -24,7 +25,29 @@ namespace Fludop.Core.Query.Commands
 
         public override string Build()
         {
+            base.Build();
+            BuildSet();
+            BuildWhere();
             return _stringBuilder.ToString();
+        }
+
+        private void BuildSet()
+        {
+            if(!SetList.Any())
+                return;
+
+            foreach (var set in SetList)
+            {
+                _stringBuilder.Append(SqlPunctuationConst.Space);
+                _stringBuilder.Append($"{set.Keys.First()}");
+                _stringBuilder.Append(SqlPunctuationConst.Space);
+                _stringBuilder.Append(SqlPunctuationConst.Equal);
+                _stringBuilder.Append(SqlPunctuationConst.Space);
+                _stringBuilder.Append($"{set.Values.First()}");
+                _stringBuilder.Append(SqlPunctuationConst.Comma);
+            }
+
+            _stringBuilder.Remove(_stringBuilder.Length - 1, 1);
         }
     }     
 }

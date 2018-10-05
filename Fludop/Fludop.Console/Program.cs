@@ -18,13 +18,11 @@ namespace Fludop.Console
         {
             var selectResult = Core.Fludop
                 .Select<Book>(x => new {x.Author, x.Title})
-                .From()
                 .Where(v => v.Title, "Dobra ksiazka")
                 .Build();
 
             var select = Core.Fludop
                 .Select<Book>()
-                .From()
                 .Where(v => v.Title, "Dobra ksiazka")
                 .Build();
 
@@ -42,7 +40,6 @@ namespace Fludop.Console
                 .Build();
 
             var delete = Core.Fludop.Delete<Book>()
-                .From()
                 .Where(x => x.Author, "Wojtek")
                 .Build();
 

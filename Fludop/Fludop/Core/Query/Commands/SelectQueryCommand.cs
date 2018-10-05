@@ -6,16 +6,10 @@ using Fludop.Core.Query.Consts;
 namespace Fludop.Core.Query.Commands
 {
     internal class SelectQueryCommand<TEntity> : Query<TEntity>, 
-        ISelectCommand<TEntity>,
-        IFromCommand<TEntity>
+        ISelectCommand<TEntity>
     {
         public List<string> Columns { get; set; }
         public List<string> Where { get; set; }
-
-        public IFromCommand<TEntity> From()
-        {
-            throw new NotImplementedException();
-        }
 
         public override string Build()
         {

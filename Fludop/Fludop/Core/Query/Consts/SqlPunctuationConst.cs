@@ -8,5 +8,6 @@
         public const string Asterisk = "*";
         public const string Comma = ",";
         public const string Semicolon = ";";
+        public const string Equal = "=";
     }
 }

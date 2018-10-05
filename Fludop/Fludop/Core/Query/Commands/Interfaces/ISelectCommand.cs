@@ -1,7 +1,10 @@
-﻿namespace Fludop.Core.Query.Commands.Interfaces
+﻿using System;
+using System.Linq.Expressions;
+
+namespace Fludop.Core.Query.Commands.Interfaces
 {
     public interface ISelectCommand<TEntity>
     {
-        IFromCommand<TEntity> From();
+        IWhereCommand<TEntity> Where<TProp>(Expression<Func<TEntity, TProp>> property, string value);
     }
 }
