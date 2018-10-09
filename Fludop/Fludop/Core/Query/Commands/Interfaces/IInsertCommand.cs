@@ -1,4 +1,7 @@
-﻿namespace Fludop.Core.Query.Commands.Interfaces
+﻿using System;
+using System.Linq.Expressions;
+
+namespace Fludop.Core.Query.Commands.Interfaces
 {
     public interface IInsertCommand<TEntity>
     {

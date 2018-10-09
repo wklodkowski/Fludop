@@ -1,41 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using Fludop.Core.Common.Infrastructure;
 
 namespace Fludop.Core.Common.Extensions
 {
     internal static class PropertyExtension
     {
-        public static string GetName<TEntity, TProp>(this Expression<Func<TEntity, TProp>> exp)
+        //public static string GetName<TEntity, TProp>(this Expression<Func<TEntity, TProp>> exp)
+        //{
+        //    if (!(exp.Body is MemberExpression body))
+        //    {
+        //        var ubody = (UnaryExpression)exp.Body;
+        //        body = ubody.Operand as MemberExpression;
+        //    }
+
+        //    if (body == null)
+        //    {
+        //        throw new InvalidOperationException();
+        //    }
+
+        //    return body.Member.Name;
+        //}
+
+        public static List<string> GetNames<TEntity>(this Expression<Func<TEntity, object>> exp)
         {
-            if (!(exp.Body is MemberExpression body))
-            {
-                var ubody = (UnaryExpression)exp.Body;
-                body = ubody.Operand as MemberExpression;
-            }
-
-            if (body == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return body.Member.Name;
+            var members = exp.GetPropertyAccesses();
+            return members.Select(member => member.Member.Name).ToList();
         }
 
-        public static List<string> GetNames<T>(this Expression<Func<T, object>> expression)
+        private static IEnumerable<MemberExpression> GetPropertyAccesses<T, TResult>(this Expression<Func<T, TResult>> expression)
         {
-            if (expression.Body is MemberExpression)
-            {
-                var x = ((MemberExpression)expression.Body).Member.Name;
-            }
-            else
-            {
-                var op = ((UnaryExpression)expression.Body).Operand;
-                var p = ((MemberExpression)op).Member.Name;
-            }
+            var visitor = new MemberExpressionVisitor(expression.Parameters.First());
+            visitor.Visit(expression);
+            return visitor.Members;
+        }
 
-
-            return new List<string>();
+        public static List<MemberExpression> GetConditionList<TEntity, TProp>(this Expression<Func<TEntity, TProp>> property)
+        {
+            var result = new ConditionExpressionVisitor(property.Parameters.First());
+            result.Visit(property);
+            // TODO: Implement getting conditionlist
+            return new List<MemberExpression>();
         }
     }
 }

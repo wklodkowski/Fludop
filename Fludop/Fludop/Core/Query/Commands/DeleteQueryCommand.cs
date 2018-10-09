@@ -11,6 +11,7 @@ namespace Fludop.Core.Query.Commands
             base.Build();
             BuildFrom();
             BuildWhere();
+            BuildSemicolon();
             return _stringBuilder.ToString();
         }
 

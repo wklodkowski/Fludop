@@ -16,18 +16,25 @@ namespace Fludop.Console
 
         private static string TestFludop()
         {
-            var selectResult = Core.Fludop
-                .Select<Book>(x => new {x.Author, x.Title})
-                .Where(v => v.Title, "Dobra ksiazka")
+            var select = Core.Fludop
+                .Select<Book>(x => new { x.Author, x.Title })
+                .Where(v => v.Title == "Dobra ksiazka")
                 .Build();
 
-            var select = Core.Fludop
+            var select0 = Core.Fludop
                 .Select<Book>()
-                .Where(v => v.Title, "Dobra ksiazka")
+                .Where(v => v.Title == "Dobra ksiazka")
                 .Build();
+
+            var select1 = Core.Fludop.Select<Book>().Where(x => x.Author == "Autor" && 
+                                                                x.Title == "aaa" || 
+                                                                x.Id >= 3 && 
+                                                                x.Title == "bbb" &&
+                                                                x.Id <= 4 || 
+                                                                x.Title == "sds").Build();
 
             var insert = Core.Fludop.Insert<Book>()// TODO: Czy kolumny w "INSERT" powinny byc w metodzie insert czy values
-                .Values("Nowy tytul", "Autor Wojtek")
+                .Values("1", "Nowy tytul", "Autor Wojtek")
                 .Build();
 
             var insert1 = Core.Fludop.Insert<Book>(x => new { x.Author, x.Title })
@@ -35,20 +42,15 @@ namespace Fludop.Console
                 .Build();
 
             var update = Core.Fludop.Update<Book>()
-                .Set(x => x.Author, "Mariusz") //TODO: Pytanie czy zrobić tak by sety wszystkich kolumn były w jednym SET
-                .Where(x => x.Title, "Nowy tytul") //TODO: To samo co wyzej
+                .Set(x => x.Author == "Mariusz" && x.Title == "Puchatek")
+                .Where(x => x.Id == 2)
                 .Build();
 
             var delete = Core.Fludop.Delete<Book>()
-                .Where(x => x.Author, "Wojtek")
+                .Where(x => x.Author == "Wojtek")
                 .Build();
 
-            var updateResult = Core.Fludop.Update<Book>().Set(x => x.Title, "Nowy Tytul")
-                .Set(x => x.Author, "Wojtek")
-                .Where(w => w.Id, "1")
-                .Build();
-
-            return selectResult;
+            return select1;
         }
     }
 }

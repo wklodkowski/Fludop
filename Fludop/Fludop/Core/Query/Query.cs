@@ -4,10 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Fludop.Core.Common.Extensions;
+using Fludop.Core.Common.Models;
 using Fludop.Core.Query.Commands.Enums;
 using Fludop.Core.Query.Commands.Extensions;
 using Fludop.Core.Query.Commands.Interfaces;
-using Fludop.Core.Query.Commands.Models;
 using Fludop.Core.Query.Consts;
 using Fludop.Core.Tables.Conventions;
 using Fludop.Core.Tables.Extensions;
@@ -19,26 +19,20 @@ namespace Fludop.Core.Query
     {
         protected readonly StringBuilder _stringBuilder;
         public CommandEnum MainCommand { get; set; }
-        public List<WhereModel> WhereList { get; set; }   
+        public List<ConditionExpressionModel> WhereList { get; set; }   
 
         protected Query()
         {
             _stringBuilder = new StringBuilder();
         }
 
-        public IWhereCommand<TEntity> Where<TProp>(Expression<Func<TEntity, TProp>> property, string value)
+        public IWhereCommand<TEntity> Where<TProp>(Expression<Func<TEntity, TProp>> property)
         {
             if (WhereList == null)
-                WhereList = new List<WhereModel>();
-
-            WhereList.Add(new WhereModel {
-                Column = new Columns.Models.ColumnModel
-                {
-                    ColumnName = property.GetName()
-                },
-                Expression = null,
-                Value = value
-            });
+                WhereList = new List<ConditionExpressionModel>();
+            
+            //TODO: Get list of condition expression
+            MockWhere();
 
             return this;
         }
@@ -51,7 +45,7 @@ namespace Fludop.Core.Query
 
         protected void BuildWhere()
         {
-            if (!WhereList.Any())
+            if (WhereList == null ||!WhereList.Any())
                 return;
 
             _stringBuilder.Append(SqlPunctuationConst.Space);
@@ -76,6 +70,38 @@ namespace Fludop.Core.Query
         {
             var tableConvenction = new TableConvention<TEntity>();
             return tableConvenction.GetTableName();
+        }
+
+        protected void BuildSemicolon()
+        {
+            _stringBuilder.Append(SqlPunctuationConst.Semicolon);
+        }
+
+        private void MockWhere()
+        {
+            WhereList.Add(new ConditionExpressionModel()
+            {
+                Column = "Id",
+                Expression = ">",
+                Operator = "AND",
+                Value = "3"
+            });
+
+            WhereList.Add(new ConditionExpressionModel()
+            {
+                Column = "Author",
+                Expression = "=",
+                Operator = "OR",
+                Value = "Wojtek"
+            });
+
+            WhereList.Add(new ConditionExpressionModel()
+            {
+                Column = "Title",
+                Expression = "=",
+                Operator = null,
+                Value = "Wojtek"
+            });
         }
     }
 }

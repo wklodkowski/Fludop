@@ -11,15 +11,16 @@ namespace Fludop.Core.Query.Commands
         IUpdateCommand<TEntity>,
         ISetCommand<TEntity>
     {
-        public List<Dictionary<string, string>> SetList { get; set; }
+        public Dictionary<string, string> SetList { get; set; }
 
-        public ISetCommand<TEntity> Set<TProp>(Expression<Func<TEntity, TProp>> property, string value)
+        public ISetCommand<TEntity> Set<TProp>(Expression<Func<TEntity, TProp>> property)
         {
-            if (!SetList.Any())
-                SetList = new List<Dictionary<string, string>>();
-
-
+            if (SetList == null || !SetList.Any())
+                SetList = new Dictionary<string, string>();
             
+            //TODO: Get set values
+            MockSet();
+
             return this;
         }
 
@@ -28,6 +29,8 @@ namespace Fludop.Core.Query.Commands
             base.Build();
             BuildSet();
             BuildWhere();
+            BuildSemicolon();
+
             return _stringBuilder.ToString();
         }
 
@@ -39,15 +42,21 @@ namespace Fludop.Core.Query.Commands
             foreach (var set in SetList)
             {
                 _stringBuilder.Append(SqlPunctuationConst.Space);
-                _stringBuilder.Append($"{set.Keys.First()}");
+                _stringBuilder.Append($"{set.Key}");
                 _stringBuilder.Append(SqlPunctuationConst.Space);
                 _stringBuilder.Append(SqlPunctuationConst.Equal);
                 _stringBuilder.Append(SqlPunctuationConst.Space);
-                _stringBuilder.Append($"{set.Values.First()}");
+                _stringBuilder.Append($"{set.Value}");
                 _stringBuilder.Append(SqlPunctuationConst.Comma);
             }
 
             _stringBuilder.Remove(_stringBuilder.Length - 1, 1);
+        }
+
+        private void MockSet()
+        {
+            SetList.Add("Author", "Wojtek");
+            SetList.Add("Title", "Tytan");
         }
     }     
 }
